@@ -1,41 +1,46 @@
+
 .ui-enhancements-toolbar {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-wrap: nowrap;
+    gap: 5px;
     width: fit-content;
     max-width: 100%;
-    margin: 6px 0;
-    padding: 6px 9px;
-    border: 1px solid var(-- SmartThemeBorderColor, rgba(150, 150, 150, 0.35));
-    border-radius: 9px;
+    margin: 0 0 6px 0;
+    padding: 4px 7px;
+    border: 1px solid var(--SmartThemeBorderColor, rgba(150, 150, 150, 0.35));
+    border-radius: 8px;
     background: var(--SmartThemeBlurTintColor, rgba(30, 30, 30, 0.82));
     color: var(--SmartThemeBodyColor, inherit);
 }
 
 .ui-enhancements-toolbar-label {
-    margin-right: 3px;
-    font-size: 0.82em;
-    opacity: 0.72;
+    margin-right: 2px;
+    font-size: 11px;
+    opacity: 0.65;
+    white-space: nowrap;
 }
 
 .ui-enhancements-button {
-    min-width: 34px;
-    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 27px;
+    padding: 3px 8px;
     border: 1px solid var(--SmartThemeBorderColor, rgba(150, 150, 150, 0.4));
-    border-radius: 6px;
+    border-radius: 5px;
     background: var(--SmartThemeQuoteColor, rgba(110, 110, 110, 0.18));
     color: var(--SmartThemeBodyColor, inherit);
-    font: inherit;
+    font-size: 12px;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1;
     cursor: pointer;
-    transition: background 120ms ease, border-color 120ms ease;
+    white-space: nowrap;
 }
 
 .ui-enhancements-button:hover {
     background: var(--SmartThemeEmColor, rgba(150, 150, 150, 0.25));
-    border-color: var(--SmartThemeBodyColor, rgba(180, 180, 180, 0.65));
 }
 
 .ui-enhancements-button:focus-visible {

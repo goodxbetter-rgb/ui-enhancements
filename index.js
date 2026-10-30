@@ -3,6 +3,7 @@
     'use strict';
 
     const TOOLBAR_ID = 'ui-enhancements-quick-insert';
+    const WRAPPER_ID = 'ui-enhancements-toolbar-wrapper';
     const TEXTAREA_SELECTOR = '#send_textarea';
 
     const WRAPPERS = [
@@ -46,15 +47,12 @@
         const value = textarea.value;
         const selected = value.slice(start, end);
 
-        const before = value.slice(0, start);
-        const after = value.slice(end);
-
         textarea.value =
-            before +
+            value.slice(0, start) +
             wrapper.open +
             selected +
             wrapper.close +
-            after;
+            value.slice(end);
 
         if (start !== end) {
             textarea.setSelectionRange(
@@ -116,6 +114,7 @@
         if (!container) return;
 
         const wrapper = document.createElement('div');
+        wrapper.id = WRAPPER_ID;
         wrapper.className = 'ui-enhancements-toolbar-wrapper';
 
         const toolbar = createToolbar();
@@ -123,7 +122,17 @@
         container.insertBefore(wrapper, textarea);
         wrapper.appendChild(toolbar);
 
-        wrapper.insertAdjacentElement('afterend', textarea);
+        // จัดองค์ประกอบในกล่องแม่ให้เรียงเป็นแนวตั้ง
+        container.style.setProperty('display', 'flex', 'important');
+        container.style.setProperty('flex-direction', 'column', 'important');
+        container.style.setProperty('align-items', 'stretch', 'important');
+
+        wrapper.style.setProperty('display', 'block', 'important');
+        wrapper.style.setProperty('width', '100%', 'important');
+        wrapper.style.setProperty('flex', '0 0 auto', 'important');
+
+        textarea.style.setProperty('width', '100%', 'important');
+        textarea.style.setProperty('flex', '0 0 auto', 'important');
     }
 
     function init() {

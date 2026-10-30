@@ -2,27 +2,24 @@
 (() => {
     'use strict';
 
-    const TOOLBAR_ID = 'ui-enhancements-quick-insert';
-    const WRAPPER_ID = 'ui-enhancements-toolbar-wrapper';
     const TEXTAREA_SELECTOR = '#send_textarea';
+    const TOGGLE_ID = 'ui-enhancements-toggle';
+    const POPUP_ID = 'ui-enhancements-popup';
 
     const WRAPPERS = [
         {
-            id: 'quote',
             label: '""',
             title: 'ใส่เครื่องหมายคำพูด',
             open: '"',
             close: '"'
         },
         {
-            id: 'bold',
             label: '**',
             title: 'ใส่ตัวหนา',
             open: '**',
             close: '**'
         },
         {
-            id: 'ooc',
             label: '(OOC:)',
             title: 'ใส่คำสั่ง OOC',
             open: '(OOC: ',
@@ -30,8 +27,44 @@
         }
     ];
 
+    let toggleButton = null;
+    let popup = null;
+    let isOpen = false;
+
     function getTextarea() {
         return document.querySelector(TEXTAREA_SELECTOR);
+    }
+
+    function positionElements() {
+        const textarea = getTextarea();
+
+        if (!textarea || !toggleButton || !popup) return;
+
+        const rect = textarea.getBoundingClientRect();
+
+        // วางปุ่มลอยไว้บริเวณมุมซ้ายบนของช่องพิมพ์
+        let toggleTop = rect.top - 38;
+
+        if (toggleTop < 5) {
+            toggleTop = rect.top + 5;
+        }
+
+        toggleButton.style.left = `${Math.max(5, rect.left + 5)}px`;
+        toggleButton.style.top = `${toggleTop}px`;
+
+        if (isOpen) {
+            const popupRect = popup.getBoundingClientRect();
+
+            let popupTop = toggleTop - popupRect.height - 7;
+
+            // หากพื้นที่ด้านบนไม่พอ ให้แสดงป๊อปอัปด้านล่างปุ่ม
+            if (popupTop < 5) {
+                popupTop = toggleTop + 35;
+            }
+
+            popup.style.left = `${Math.max(5, rect.left + 5)}px`;
+            popup.style.top = `${popupTop}px`;
+        }
     }
 
     function insertWrapper(wrapper) {
@@ -66,29 +99,51 @@
 
         textarea.dispatchEvent(new Event('input', { bubbles: true }));
         textarea.dispatchEvent(new Event('change', { bubbles: true }));
+
+        closePopup();
     }
 
-    function createToolbar() {
-        const toolbar = document.createElement('div');
+    function openPopup() {
+        if (!popup || !toggleButton) return;
 
-        toolbar.id = TOOLBAR_ID;
-        toolbar.className = 'ui-enhancements-toolbar';
-        toolbar.setAttribute('aria-label', 'Quick Insert Toolbar');
+        isOpen = true;
+        popup.style.display = 'flex';
+        toggleButton.classList.add('active');
+        toggleButton.setAttribute('aria-expanded', 'true');
 
-        const label = document.createElement('span');
-        label.className = 'ui-enhancements-toolbar-label';
-        label.textContent = 'แทรกด่วน';
+        positionElements();
+    }
 
-        toolbar.appendChild(label);
+    function closePopup() {
+        if (!popup || !toggleButton) return;
+
+        isOpen = false;
+        popup.style.display = 'none';
+        toggleButton.classList.remove('active');
+        toggleButton.setAttribute('aria-expanded', 'false');
+    }
+
+    function createInterface() {
+        if (document.getElementById(TOGGLE_ID)) return;
+
+        toggleButton = document.createElement('button');
+        toggleButton.id = TOGGLE_ID;
+        toggleButton.type = 'button';
+        toggleButton.textContent = 'แทรกด่วน';
+        toggleButton.title = 'เปิดเมนูแทรกข้อความ';
+        toggleButton.setAttribute('aria-expanded', 'false');
+
+        popup = document.createElement('div');
+        popup.id = POPUP_ID;
+        popup.setAttribute('aria-label', 'เมนูแทรกข้อความ');
 
         WRAPPERS.forEach(wrapper => {
             const button = document.createElement('button');
 
             button.type = 'button';
-            button.className = 'ui-enhancements-button';
+            button.className = 'ui-enhancements-popup-button';
             button.textContent = wrapper.label;
             button.title = wrapper.title;
-            button.setAttribute('aria-label', wrapper.title);
 
             button.addEventListener('mousedown', event => {
                 event.preventDefault();
@@ -98,50 +153,55 @@
                 insertWrapper(wrapper);
             });
 
-            toolbar.appendChild(button);
+            popup.appendChild(button);
         });
 
-        return toolbar;
-    }
+        toggleButton.addEventListener('mousedown', event => {
+            event.preventDefault();
+        });
 
-    function mountToolbar() {
-        const textarea = getTextarea();
+        toggleButton.addEventListener('click', () => {
+            if (isOpen) {
+                closePopup();
+            } else {
+                openPopup();
+            }
+        });
 
-        if (!textarea) return;
-        if (document.getElementById(TOOLBAR_ID)) return;
+        document.body.appendChild(toggleButton);
+        document.body.appendChild(popup);
 
-        const container = textarea.parentElement;
-        if (!container) return;
+        document.addEventListener('mousedown', event => {
+            if (
+                isOpen &&
+                !popup.contains(event.target) &&
+                !toggleButton.contains(event.target)
+            ) {
+                closePopup();
+            }
+        });
 
-        const wrapper = document.createElement('div');
-        wrapper.id = WRAPPER_ID;
-        wrapper.className = 'ui-enhancements-toolbar-wrapper';
+        window.addEventListener('resize', positionElements);
+        window.addEventListener('scroll', positionElements, true);
 
-        const toolbar = createToolbar();
-
-        container.insertBefore(wrapper, textarea);
-        wrapper.appendChild(toolbar);
-
-        // จัดองค์ประกอบในกล่องแม่ให้เรียงเป็นแนวตั้ง
-        container.style.setProperty('display', 'flex', 'important');
-        container.style.setProperty('flex-direction', 'column', 'important');
-        container.style.setProperty('align-items', 'stretch', 'important');
-
-        wrapper.style.setProperty('display', 'block', 'important');
-        wrapper.style.setProperty('width', '100%', 'important');
-        wrapper.style.setProperty('flex', '0 0 auto', 'important');
-
-        textarea.style.setProperty('width', '100%', 'important');
-        textarea.style.setProperty('flex', '0 0 auto', 'important');
+        positionElements();
     }
 
     function init() {
-        mountToolbar();
+        if (!getTextarea()) return;
+
+        if (!document.getElementById(TOGGLE_ID)) {
+            createInterface();
+        } else {
+            positionElements();
+        }
+    }
+
+    function start() {
+        init();
 
         const observer = new MutationObserver(() => {
-            if (!document.getElementById(TOOLBAR_ID)) {
-                mountToolbar();
-            }
+            init();
         });
 
         observer.observe(document.body, {
@@ -151,10 +211,8 @@
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init, {
-            once: true
-        });
+        document.addEventListener('DOMContentLoaded', start, { once: true });
     } else {
-        init();
+        start();
     }
 })();

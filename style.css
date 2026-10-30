@@ -1,12 +1,18 @@
+/* Toolbar container */
+.ui-enhancements-toolbar-wrapper {
+    display: block !important;
+    width: 100%;
+    margin-bottom: 6px;
+}
 
-.ui-enhancements-toolbar {
-    display: inline-flex;
+/* Toolbar */
+#ui-enhancements-quick-insert {
+    display: inline-flex !important;
     align-items: center;
     flex-wrap: nowrap;
     gap: 5px;
-    width: fit-content;
+    width: fit-content !important;
     max-width: 100%;
-    margin: 0 0 6px 0;
     padding: 4px 7px;
     border: 1px solid var(--SmartThemeBorderColor, rgba(150, 150, 150, 0.35));
     border-radius: 8px;
@@ -14,6 +20,7 @@
     color: var(--SmartThemeBodyColor, inherit);
 }
 
+/* Label */
 .ui-enhancements-toolbar-label {
     margin-right: 2px;
     font-size: 11px;
@@ -21,6 +28,7 @@
     white-space: nowrap;
 }
 
+/* Buttons */
 .ui-enhancements-button {
     display: inline-flex;
     align-items: center;

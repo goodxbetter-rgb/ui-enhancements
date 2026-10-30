@@ -57,24 +57,17 @@
             after;
 
         if (start !== end) {
-            // คงการเลือกข้อความไว้หลังครอบเครื่องหมาย
             textarea.setSelectionRange(
                 start + wrapper.open.length,
                 start + wrapper.open.length + selected.length
             );
         } else {
-            // วางเคอร์เซอร์ไว้ระหว่างเครื่องหมาย
             const caret = start + wrapper.open.length;
             textarea.setSelectionRange(caret, caret);
         }
 
-        textarea.dispatchEvent(
-            new Event('input', { bubbles: true })
-        );
-
-        textarea.dispatchEvent(
-            new Event('change', { bubbles: true })
-        );
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     function createToolbar() {
@@ -99,7 +92,6 @@
             button.title = wrapper.title;
             button.setAttribute('aria-label', wrapper.title);
 
-            // ป้องกันการเสียตำแหน่งเคอร์เซอร์
             button.addEventListener('mousedown', event => {
                 event.preventDefault();
             });
@@ -118,18 +110,20 @@
         const textarea = getTextarea();
 
         if (!textarea) return;
-
         if (document.getElementById(TOOLBAR_ID)) return;
+
+        const container = textarea.parentElement;
+        if (!container) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ui-enhancements-toolbar-wrapper';
 
         const toolbar = createToolbar();
 
-        // แทรก Toolbar ภายใน container เดียวกับกล่องข้อความ
-        // โดยวางไว้ก่อน textarea
-        const container = textarea.parentElement;
+        container.insertBefore(wrapper, textarea);
+        wrapper.appendChild(toolbar);
 
-        if (!container) return;
-
-        container.insertBefore(toolbar, textarea);
+        wrapper.insertAdjacentElement('afterend', textarea);
     }
 
     function init() {
